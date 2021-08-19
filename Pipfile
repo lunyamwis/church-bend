@@ -1,0 +1,45 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[dev-packages]
+flake8 = "*"
+coverage = "*"
+coverage-badge = "*"
+autopep8 = "*"
+
+[packages]
+django = "*"
+psycopg2-binary = "==2.8.5"
+graphene = ">=2.1.7"
+graphene-django = ">=2.1.5"
+django-graphql-jwt = "==0.3.1"
+django-graphql-extensions = "==0.0.7"
+numpy = "==1.18.5"
+django-password-validators = "==1.1.0"
+django-role-permissions = "==3.0.0"
+celery = "==4.4.2"
+gevent = ">=20.6.1"
+redis = "==3.5.3"
+gunicorn = "==20.0.4"
+whitenoise = "*"
+pyjwt = "==1.7.1"
+django-filter = "*"
+django-cors-headers = "*"
+jupyter = "*"
+ipython = "*"
+django-extensions = "*"
+pandas = "*"
+xlrd = "*"
+django-softdelete = "*"
+importlib-metadata = "*"
+twilio = "*"
+django-simple-history = "*"
+dialogflow = "*"
+djangorestframework = "*"
+sqlalchemy = "*"
+typing-extensions = "*"
+
+[requires]
+python_version = "3.7"

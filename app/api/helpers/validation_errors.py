@@ -1,0 +1,22 @@
+error_dict = {
+    "required": "{} missing",
+    "empty_field": "{} cannot be empty.",
+    "invalid_name": "{0} cannot have spaces or special characters.",
+    "invalid_number": "The {} must contain numbers only.",
+    'invalid_password': 'Password must have at least a number, and a least an uppercase and a lowercase letter.',
+    'invalid_input': 'Enter a valid {}.',
+    "invalid_phone_no": "Phone number must be numbers of the format +254...",
+    "min_length": "{0} must be at least {1} characters long.",
+    "max_length": "{0} must be at at most {1} characters long.",
+    "either_required": "You must provide either {} or {}",
+    "already_exist": "{} already exist.",
+    "does_not_exist": "{} does not exist",
+    "email_already_exist": "Account already created. Kindly verify it via email to continue",
+    "permission_denied": "You are not permitted to {} this {}",
+    "admin_only": "You are not permitted to {}",
+    "valid_options": "Invalid {} options. Allowed options are {}",
+    'account_deactivated': 'Account is temporarily deactivated. Kindly activate it to continue.',
+    'account_unverified': 'Account is not verified. Kindly verify your account via the link sent to your email to continue',
+    'email_text_missing': "You must provide either the email or text",
+    'clients_contact_ppl': "You must provide either the client(s) or contact person(s)"
+}

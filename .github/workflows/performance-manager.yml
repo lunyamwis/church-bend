@@ -1,0 +1,126 @@
+name: Performance Management API
+
+on:
+  push:
+    branches:
+      - main
+      - master
+      - develop
+  pull_request:
+    branches:
+      - "*"
+jobs:
+
+  run-tests:
+    name: Run Tests
+
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:10.8
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: github_actions
+        ports:
+          - 5432:5432
+        # needed because the postgres container does not provide a healthcheck
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
+    steps:
+      - uses: rokroskar/workflow-run-cleanup-action@v0.2.2
+        name: "Cancel duplicate workflow runs"
+        env:
+          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+        # if: "github.ref != 'refs/heads/master'"
+      - uses: actions/checkout@v2.0.0
+      - name: Set up Python 3.7
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.7.9
+      - name: psycopg2 prerequisites
+        run: |
+          sudo apt-get install python-dev libpq-dev
+
+      - name: Install pipenv
+        uses: dschep/install-pipenv-action@v1
+
+      - name: Cache Pipenv virtualenv
+        uses: actions/cache@v1
+        id: pipenv-cache
+        with:
+          path: ~/.pipenv
+          key: ${{ runner.os }}-pipenv-v3-${{ hashFiles('**/Pipfile.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-pipenv-v3-
+
+      - name: Install Dependencies
+        env:
+          PIPENV_NOSPIN: "true"
+          WORKON_HOME: ~/.pipenv/virtualenvs
+          PIPENV_CACHE_DIR: ~/.pipenv/pipcache
+        run: pipenv install --dev
+        if: steps.pipenv-cache.outputs.cache-hit != 'true'
+
+      - name: Lint with flake8
+        env:
+          PIPENV_NOSPIN: "true"
+          WORKON_HOME: ~/.pipenv/virtualenvs
+          PYTHONPATH: "."
+        run: |
+          pipenv run flake8 .
+
+      - name: Test with Coverage
+        env:
+          PIPENV_NOSPIN: "true"
+          WORKON_HOME: ~/.pipenv/virtualenvs
+          GOOGLE_APPLICATION_CREDENTIALS: "brooksbotter-leqf-e87602926544.json"
+          DB_USER: postgres
+          DB_PASSWORD: postgres
+          DB_HOST: localhost
+          DB_NAME: github_actions
+          SECRET_KEY: very-secret-key
+          PYTHONPATH: "."
+          DJANGO_DEBUG: "False"
+        run: |
+          pipenv run coverage run --source=app/api --rcfile=.coveragerc  manage.py test --verbosity=2
+          pipenv run coverage report -m
+
+
+  build-and-deploy:
+    name: Deploy App
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/develop'
+    steps:
+      - uses: actions/checkout@v1
+      - name: Executing remote  command
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          password: ${{ secrets.PASSWORD }}
+          port: ${{ secrets.PORT }}
+          script: |
+            cd /srv/www/html/samar-insurance-api/
+            git fetch
+            git reset --hard origin/main
+            export DB_USER=${{ secrets.DB_USER}}
+            export GOOGLE_APPLICATION_CREDENTIALS="brooksbotter-leqf-e87602926544.json"
+            export DB_PASSWORD=${{ secrets.DB_PASSWORD}}
+            export DB_NAME=${{ secrets.DB_NAME}}
+            export SECRET_KEY='${{ secrets.SECRET_KEY}}'
+            export EMAIL_HOST_USER='${{ secrets.EMAIL_HOST_USER}}'
+            export EMAIL_HOST='${{ secrets.EMAIL_HOST}}'
+            export DEFAULT_FROM_EMAIL='${{ secrets.DEFAULT_FROM_EMAIL}}'
+            export DJANGO_SETTINGS_MODULE=${{ secrets.DJANGO_SETTINGS_MODULE}}
+            export EMAIL_SENDER='${{ secrets.EMAIL_SENDER}}'
+            export PASSWORD_RESET_URL='${{ secrets.PASSWORD_RESET_URL}}'
+            export EMAIL_HOST_PASSWORD='${{ secrets.EMAIL_HOST_PASSWORD}}'
+            export TWILIO_ACC_SID='${{ secrets.TWILIO_ACC_SID}}'
+            export TWILIO_NOTIFY_SERVICE_SID='${{ secrets.TWILIO_NOTIFY_SERVICE_SID}}'
+            export TWILIO_ACC_AUTH_TOKEN='${{ secrets.TWILIO_ACC_AUTH_TOKEN}}'
+            export GOOGLE_APPLICATION_CREDENTIALS='${{ secrets.TWILIO_ACC_AUTH_TOKEN}}'
+            docker-compose build
+            docker-compose up -d
+    needs: [run-tests]

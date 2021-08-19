@@ -1,0 +1,83 @@
+version: "3.1"
+services:
+  database:
+    restart: always
+    image: postgres:10.1
+    environment:
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
+    volumes:
+      - ./brooks-insurance-db:/var/lib/postgresql/data
+    ports:
+      - "5434:5432"
+    expose:
+      - "5434"
+    networks:
+      - back-end
+  redis:
+    image: redis
+    ports:
+      - "6378:6379"
+    networks:
+      - back-end
+    expose:
+      - "6378"
+  app:
+    restart: always
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    ports:
+      - "8000:8000"
+    image: brooks-insurance-api
+    volumes:
+      - .:/brooks-insurance-api
+      - static_volume:/brooks-insurance-api/app/static/
+    depends_on:
+      - redis
+      - database
+    entrypoint: ["/bin/bash", "-c", "/brooks-insurance-api/docker/start_api.sh"]
+    stdin_open: true
+    tty: true
+    networks:
+      - back-end
+    environment:
+      - CELERY_BROKER_URL=redis://redis
+      - CELERY_RESULT_BACKEND=redis://redis
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
+      - DB_HOST=database
+      - SECRET_KEY=${SECRET_KEY}
+      - DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
+      - ALLOWED_LOCAL_HOST=localhost
+      - EMAIL_HOST_USER=${EMAIL_HOST_USER}
+      - EMAIL_SENDER=${EMAIL_SENDER}
+      - EMAIL_HOST=${EMAIL_HOST}
+      - EMAIL_HOST_PASSWORD=${EMAIL_HOST_PASSWORD}
+      - PASSWORD_RESET_URL=${PASSWORD_RESET_URL}
+      - TWILIO_ACC_SID=${TWILIO_ACC_SID}
+      - TWILIO_NOTIFY_SERVICE_SID=${TWILIO_NOTIFY_SERVICE_SID}
+      - TWILIO_ACC_AUTH_TOKEN=${TWILIO_ACC_AUTH_TOKEN}
+      - GOOGLE_APPLICATION_CREDENTIALS=${GOOGLE_APPLICATION_CREDENTIALS}
+
+  proxy:
+    image: brooks-insurance-nginx
+    build:
+      context: .
+      dockerfile: nginx/nginx.Dockerfile
+    ports:
+      - "8087:80"
+    networks:
+      - back-end
+    depends_on:
+      - app
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - static_volume:/brooks-insurance-api/app/static/
+    restart: always
+networks:
+  back-end:
+volumes:
+  static_volume:
