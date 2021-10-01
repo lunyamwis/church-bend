@@ -3,7 +3,8 @@ from django.db import models
 from softdelete.models import SoftDeleteObject
 from softdelete.models import SoftDeleteManager
 from .helpers.push_id import PushID
-
+from simple_history.models import HistoricalRecords
+from django.contrib.postgres.fields import ArrayField
 
 class BaseModel(SoftDeleteObject):
     """
@@ -20,6 +21,13 @@ class BaseModel(SoftDeleteObject):
 
     # A timestamp reprensenting when this object was last updated.
     updated_at = models.DateTimeField(auto_now=True)
+
+    history = HistoricalRecords(table_name="history_%(app_label)s",
+                                history_change_reason_field=ArrayField(models.CharField(
+                                    max_length=250, blank=True,
+                                    unique=False, null=True), blank=True,
+                                    unique=False, null=True),
+                                excluded_fields=["updated_at"])
 
     def save(self, *args, **kwargs):  # pylint: disable=W0221
         push_id = PushID()

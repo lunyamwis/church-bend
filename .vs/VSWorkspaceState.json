@@ -1,0 +1,13 @@
+{
+    "ExpandedNodes": [
+    "",
+    "\\app",
+    "\\app\\api",
+    "\\app\\api\\donations",
+    "\\app\\api\\evangelism",
+    "\\app\\api\\ministry",
+    "\\app\\settings"
+    ],
+    "SelectedNode": "\\app\\api\\client\\mutation.py",
+    "PreviewInSolutionExplorer": false
+}

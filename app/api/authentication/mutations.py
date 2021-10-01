@@ -13,8 +13,20 @@ from ..helpers.permission_required import role_required, token_required
 from ..helpers.validate_input import check_email_validity
 from ..helpers.validation_errors import error_dict
 from .helpers.email_helper import template_email
+from ..member.models import Member
+from ..minister.models import Minister
+from ..ministry.models import Ministry
 from .helpers.user_helpers import validate_user_email
 from .models import User
+from ..member.object_types import (
+    MemberType,MemberInput
+)
+from ..minister.object_types import (
+    MinisterType,MinisterInput
+)
+from ..ministry.object_types import (
+    MinistryType,MinistryInput
+)
 from .object_types import (AdminType, PasswordResetInput, UserInput, UserType,
                            UserUpdateInput)
 from .validators.validate_input import UserValidations
@@ -79,7 +91,24 @@ class CreateUser(graphene.Mutation):
         validator = UserValidations()
         data = validator.validate_user_registration_data(
             kwargs.get("input", ''))
-        data['is_staff'] = True
+        member_data = data['member']
+        minister_data = data['minister']
+        ministry_data = data['ministry']
+
+        if member_data:
+            new_member = Member(**member_data[0])
+            new_member.save()
+            data['member'] = new_member
+        if minister_data:
+            new_minister = Minister(**minister_data[0])
+            new_minister.save()
+            data['minister'] = new_minister
+        if ministry_data:
+            new_ministry = Ministry(**ministry_data[0])
+            new_ministry.save()
+            data['ministry'] = new_ministry
+
+        
         new_user = User.objects.create_user(**data)
         assign_role(new_user, 'manager')
         user_link = '{}users/activate/{}'.format(
@@ -88,7 +117,7 @@ class CreateUser(graphene.Mutation):
         user_data = {
             'username': new_user.username,
             'link': user_link,
-            'message_body': USER_MAIL_BODY_MSG.format(new_user.agency.name),
+            'message_body': USER_MAIL_BODY_MSG.format(new_user.username),
             'body': ACCOUNT_ACTIVATION_MSG
         }
         mail_subject = "Account activation for {}".format(new_user.username)

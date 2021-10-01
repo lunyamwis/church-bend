@@ -3,6 +3,15 @@ from django_filters import OrderingFilter
 from graphene.types.generic import GenericScalar
 from graphene_django.types import DjangoObjectType
 from rolepermissions.roles import get_user_roles
+from ..member.object_types import (
+    MemberInput,MemberType
+)
+from ..minister.object_types import(
+    MinisterInput,MinisterType
+)
+from ..ministry.object_types import (
+    MinistryInput,MinistryType
+)
 
 from .models import User
 
@@ -63,7 +72,10 @@ class UserInput(graphene.InputObjectType):
     last_name = graphene.String()
     phone_number = graphene.String()
     image = graphene.String()
-
+    member = graphene.List(MemberInput)
+    minister = graphene.List(MinisterInput)
+    ministry = graphene.List(MinistryInput)
+    
 
 class UserUpdateInput(graphene.InputObjectType):
     """

@@ -48,6 +48,18 @@ INSTALLED_APPS = [
     'app.api',
     'app.api.roles',
     'app.api.authentication',
+    'app.api.member',
+    'app.api.blog',
+    'app.api.minister',
+    'app.api.ministry',
+    'app.api.podcast',
+    'app.api.videos',
+    'app.api.donations',
+    'app.api.evangelism',
+    'app.api.history',
+    'app.api.books',
+    'app.api.images',
+    'app.api.chatty'
 ]
 SAFE_DELETE_INTERPRET_UNDELETED_OBJECTS_AS_CREATED=True
 AUTH_USER_MODEL = 'authentication.User'
@@ -113,9 +125,9 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': os.getenv('DB_NAME','laylinks'),
-        'PASSWORD': os.getenv('DB_PASSWORD', 'martin1996-'),
+        'PASSWORD': os.getenv('DB_PASSWORD', 'luther1996-'),
         'HOST': os.getenv('DB_HOST','localhost'),
-        'USER': os.getenv('DB_USER','martin'),
+        'USER': os.getenv('DB_USER','postgres'),
         'PORT': '5432',
     }
 }
@@ -123,6 +135,7 @@ AUTHENTICATION_BACKENDS = [
     'graphql_jwt.backends.JSONWebTokenBackend',
     'django.contrib.auth.backends.ModelBackend',
 ]
+
 
 # History
 SIMPLE_HISTORY_HISTORY_ID_USE_UUID = True

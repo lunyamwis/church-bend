@@ -3,6 +3,9 @@ from app.api.models import BaseModel
 from django.contrib.auth.models import (AbstractBaseUser, BaseUserManager,
                                         PermissionsMixin)
 from django.contrib.postgres.fields import ArrayField
+from ..member.models import Member
+from ..minister.models import Minister
+from ..ministry.models import Ministry
 from django.db import models
 from simple_history.models import HistoricalRecords
 from softdelete.models import SoftDeleteManager
@@ -71,6 +74,18 @@ class User(AbstractBaseUser, PermissionsMixin, BaseModel):
 
     is_active = models.BooleanField(default=False)
     is_password_set = models.BooleanField(default=False)
+    minister = models.ForeignKey(Minister,on_delete=models.CASCADE,
+                related_name="%(app_label)s_%(class)s_related",
+                related_query_name="%(app_label)s_%(class)ss",null=True,blank=True)
+    
+    ministry = models.ForeignKey(Ministry,on_delete=models.CASCADE,
+                related_name="%(app_label)s_%(class)s_related",
+                related_query_name="%(app_label)s_%(class)ss",null=True,blank=True)
+    
+    member = models.ForeignKey(Member,on_delete=models.CASCADE,
+                related_name="%(app_label)s_%(class)s_related",
+                related_query_name="%(app_label)s_%(class)ss",null=True,blank=True)
+
 
     is_staff = models.BooleanField(default=False)
     USERNAME_FIELD = 'username'

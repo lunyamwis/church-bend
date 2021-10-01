@@ -2,6 +2,7 @@ USER_REQUIRED_FIELD = ['first_name', 'last_name',
                        'username', 'email', 'password', 'phone_number']
 EMPLOYEE_REQUIRED_FIELD = ['first_name', 'last_name', "email"]
 INDIVIDUAL_CLIENT_REQUIRED_FIELD = ['first_name', 'last_name', 'gender']
+BLOG_REQUIRED_FIELD = ['title','post','summary']
 CORPORATE_CLIENT_REQUIRED_FIELD = ['name', ]
 RECEIPT_REQUIRED_FIELD = ["transaction_date",
                           "amount_figures", "amount_words", "payment_mode"]
